@@ -1,34 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>IPYNB to PDF Converter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook to PDF Converter</title> 
+	<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1822/1822899.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #status { margin-top: 10px; color: #666; }
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f6fa;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .file-label:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .file-label:active {
+            transform: translateY(0);
+        }
+
+        #status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+            min-height: 60px;
+        }
+
+        .status-processing {
+            background-color: #e8f4fd;
+            color: var(--secondary-color);
+        }
+
+        .status-success {
+            background-color: #e8f6ef;
+            color: var(--success-color);
+        }
+
+        .status-error {
+            background-color: #fdedec;
+            color: var(--error-color);
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            list-style: none;
+        }
+
+        .file-list li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.35rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .delete-icon {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+        }
+
+        .convert-btn {
+            margin-top: 1rem;
+            padding: 1rem 2rem;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .convert-btn:hover {
+            background-color: #219a52;
+        }
+
+        .convert-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
-    <h1>Jupyter Notebook to PDF Converter</h1>
-    <input type="file" id="ipynbFiles" multiple accept=".ipynb">
-    <div id="status">Select one or more .ipynb files</div>
+    <div class="container">
+        <h1>Jupyter Notebook to PDF Converter</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="ipynbFiles" class="file-input" multiple accept=".ipynb">
+            <label for="ipynbFiles" class="file-label">
+                📁 Choose Files
+            </label>
+            <ul class="file-list" id="fileList"></ul>
+            <button class="convert-btn" id="convertBtn" disabled>Convert All to PDF</button>
+            <div id="status">No files selected</div>
+        </div>
+
+        <footer>
+            <p>Supports .ipynb files • Converted files download automatically</p>
+        </footer>
+    </div>
 
     <script>
         const { jsPDF } = window.jspdf;
-        
-        document.getElementById('ipynbFiles').addEventListener('change', async function(e) {
-            const files = e.target.files;
+        let selectedFiles = [];
+
+        document.getElementById('ipynbFiles').addEventListener('change', function(e) {
+            const newFiles = Array.from(e.target.files);
+            selectedFiles = [...selectedFiles, ...newFiles];
+            updateFileList();
+            updateConvertButton();
+        });
+
+        document.getElementById('convertBtn').addEventListener('click', async function() {
             const statusDiv = document.getElementById('status');
-            
-            for (const file of files) {
-                statusDiv.textContent = `Processing ${file.name}...`;
+            statusDiv.className = '';
+            statusDiv.textContent = `Processing ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}...`;
+            statusDiv.classList.add('status-processing');
+
+            for (const file of selectedFiles) {
+                const listItem = document.getElementById(`file-${file.name}`);
+                const progressFill = listItem.querySelector('.progress-fill');
                 
                 try {
                     const content = await readFile(file);
                     const notebook = JSON.parse(content);
                     const pdf = new jsPDF();
                     
-                    // PDF configuration
                     const lineHeight = 7;
                     const margin = 10;
                     let yPos = margin;
@@ -37,23 +238,19 @@
                     pdf.setFont('helvetica');
                     pdf.setFontSize(12);
                     
-                    // Process notebook cells
                     notebook.cells.forEach((cell, index) => {
                         const cellContent = cell.source.join('\n').replace(/\\n/g, '\n');
                         const isCode = cell.cell_type === 'code';
                         
-                        // Add cell type header
                         pdf.setFont(isCode ? 'courier' : 'helvetica', 'bold');
-                        pdf.text(`${isCode ? 'CODE CELL' : 'MARKDOWN CELL'} (${index + 1})`, 
-                                margin, yPos);
+                        pdf.text(`${isCode ? 'CODE CELL' : 'MARKDOWN CELL'} (${index + 1})`, margin, yPos);
                         yPos += lineHeight;
                         
-                        // Add cell content
                         pdf.setFont(isCode ? 'courier' : 'helvetica', 'normal');
                         const lines = pdf.splitTextToSize(cellContent, 180);
                         
                         lines.forEach(line => {
-                            if (yPos > 280) {  // Add new page
+                            if (yPos > 280) {
                                 pdf.addPage();
                                 page++;
                                 yPos = margin;
@@ -62,25 +259,77 @@
                             yPos += lineHeight;
                         });
                         
-                        yPos += lineHeight;  // Add space between cells
+                        yPos += lineHeight;
+                        
+                        const progress = ((index + 1) / notebook.cells.length) * 100;
+                        progressFill.style.width = `${progress}%`;
                     });
 
-                    // Save PDF
                     pdf.save(`${file.name.replace('.ipynb', '')}.pdf`);
-                    statusDiv.textContent = `Converted ${files.length} files!`;
+                    progressFill.style.backgroundColor = '#27ae60';
                     
                 } catch (error) {
-                    statusDiv.textContent = `Error processing ${file.name}: ${error}`;
+                    statusDiv.classList.remove('status-processing');
+                    statusDiv.classList.add('status-error');
+                    statusDiv.textContent = `Error processing ${file.name}: ${error.message}`;
+                    progressFill.style.backgroundColor = '#e74c3c';
                     console.error(error);
                 }
             }
+
+            statusDiv.classList.remove('status-processing');
+            statusDiv.classList.add('status-success');
+            statusDiv.textContent = `Successfully converted ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}!`;
+            selectedFiles = [];
+            updateFileList();
+            updateConvertButton();
         });
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.id = `file-${file.name}`;
+                listItem.innerHTML = `
+                    <div class="file-item">
+                        <span>${file.name}</span>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <button class="delete-btn" data-name="${file.name}" title="Delete file">
+                                <svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                fileList.appendChild(listItem);
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const fileName = this.dataset.name;
+                    selectedFiles = selectedFiles.filter(file => file.name !== fileName);
+                    updateFileList();
+                    updateConvertButton();
+                });
+            });
+        }
+
+        function updateConvertButton() {
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.disabled = selectedFiles.length === 0;
+        }
 
         function readFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = (e) => reject(e);
+                reader.onerror = (e) => reject(new Error('Failed to read file'));
                 reader.readAsText(file);
             });
         }
