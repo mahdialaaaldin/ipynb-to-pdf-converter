@@ -21,12 +21,6 @@ git clone https://github.com/mahdialaaaldin/ipynb-to-pdf-converter.git
 ```
 - Simply open `index.html` in any modern browser
 
-## Deploy to GitHub Pages
-1. Go to your repository Settings
-2. Under "Pages", select branch `main` and folder `/(root)`
-3. Save - Your converter will be live at:  
-`https://mahdialaaaldin.github.io/ipynb-to-pdf-converter/`
-
 ## How It Works
 The converter uses:
 - [jsPDF](https://parall.ax/products/jspdf) for PDF generation
