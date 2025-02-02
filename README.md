@@ -1,39 +1,73 @@
+
 # Jupyter Notebook to PDF Converter
 
-A client-side HTML tool that converts Jupyter Notebook (.ipynb) files to text-based PDFs while preserving code formatting and cell structure.
+A modern client-side tool for converting Jupyter Notebooks (.ipynb) to formatted PDFs with enhanced UI/UX and file management.
 
-## Features
-- 🚀 100% client-side (no data leaves your computer)
-- 📖 Text-based PDF output (searchable/selectable text)
-- 💻 Preserves code/markdown formatting
-- 📁 Multiple file conversion support
-- 🎯 Automatic page breaking
-- 🔒 Works offline after initial load
+![image](https://github.com/user-attachments/assets/49b9ca2c-787d-47c2-b312-adb89077a503)
 
-## Usage
-1. Open the converter: [Live Demo](https://mahdialaaaldin.github.io/ipynb-to-pdf-converter/)
-2. Click "Choose Files" and select your .ipynb files
-3. PDFs will automatically download when conversion completes
+## Features ✨
+- 🖥️ **Modern UI** - Clean, professional interface with progress tracking
+- 📁 **Batch Processing** - Convert multiple notebooks at once
+- 🔄 **File Management** - Review, delete, and track files before conversion
+- 📊 **Real-time Progress** - Visual progress bars for each file
+- 🎨 **Styled Output** - Preserves code/markdown structure in PDF
+- 🛡️ **100% Client-side** - No data leaves your computer
+- 📤 **Auto-download** - PDFs save automatically when ready
+- 🚦 **Status Indicators** - Color-coded feedback for conversions
 
-## Installation
+## Usage Guide 🚀
+1. **Upload Files**  
+   Click "Choose Files" or drag/drop .ipynb files
+
+2. **Manage Files**  
+   Review selected files, remove unwanted ones using trash icon 🗑️
+
+3. **Convert**  
+   Click "Convert All to PDF" when ready
+
+4. **Download**  
+   PDFs will automatically download with original filenames
+
+## Technical Details 🔧
+- **PDF Generation**: [jsPDF](https://parall.ax/products/jspdf) library
+- **File Processing**: Browser FileReader API
+- **JSON Parsing**: Native JSON handling of .ipynb structure
+- **UI Framework**: Pure CSS with modern flexbox layouts
+
+## Installation 💻
 ```bash
 git clone https://github.com/mahdialaaaldin/ipynb-to-pdf-converter.git
+cd ipynb-to-pdf-converter
 ```
-- Simply open `index.html` in any modern browser
+- Open `index.html` in any modern browser (Chrome/Firefox/Edge)
 
-## How It Works
-The converter uses:
-- [jsPDF](https://parall.ax/products/jspdf) for PDF generation
-- FileReader API for local file processing
-- JSON parsing of .ipynb file structure
+## Limitations ⚠️
+- 🖼️ No image support in output PDFs
+- 📈 Limited to notebooks under 10MB for optimal performance
+- 🎨 Complex markdown renders as plain text
+- 📑 No table formatting preservation
 
-## Limitations
-- Very large notebooks (>10MB) might cause browser memory issues
-- Complex markdown formatting is rendered as plain text
-- No image support in output PDFs
+## Development 🛠️
+```bash
+# Clone repository
+git clone https://github.com/yourusername/ipynb-to-pdf-converter.git
 
-## Contributing
-Contributions welcome! Please open an issue first to discuss proposed changes.
+# Serve locally (optional)
+python3 -m http.server 8000
+```
+Open `http://localhost:8000` to test
 
-## License
-[MIT](LICENSE)
+## Contributing 🤝
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## License 📄
+MIT License - See [LICENSE](LICENSE) for full text
+
+---
+
+**Note**: Python icon by [Freepik](https://www.flaticon.com/authors/freepik) from [Flaticon](https://www.flaticon.com/)
+```
