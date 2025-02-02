@@ -1,7 +1,7 @@
 
 # Jupyter Notebook to PDF Converter
 
-A modern client-side tool for converting Jupyter Notebooks (.ipynb) to formatted PDFs with enhanced UI/UX and file management.
+A modern client-side tool for converting Jupyter Notebooks (.ipynb) to formatted PDFs with enhanced UI/UX and file management, [live demo](https://mahdialaaaldin.github.io/ipynb-to-pdf-converter/).
 
 ![image](https://github.com/user-attachments/assets/49b9ca2c-787d-47c2-b312-adb89077a503)
 
