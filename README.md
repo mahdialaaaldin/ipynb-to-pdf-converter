@@ -2,8 +2,13 @@
 
 A free, privacy-first tool that converts Jupyter Notebooks (`.ipynb`) into polished, paginated PDFs — entirely inside your browser. No upload, no account, no backend.
 
+**Live demo:** [mahdialaaaldin.github.io/ipynb-to-pdf-converter](https://mahdialaaaldin.github.io/ipynb-to-pdf-converter/)
+
 ![theme](https://img.shields.io/badge/theme-dark%20%2F%20light-1c2430)
 ![license](https://img.shields.io/badge/license-MIT-35D0BA)
+
+<img width="1459" height="843" alt="image" src="https://github.com/user-attachments/assets/5e603f25-2377-461a-b8ce-6cb16a7d3ade" />
+
 
 ## Why it exists
 
