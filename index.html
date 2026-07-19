@@ -1,338 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notebook to PDF Converter</title> 
-	<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1822/1822899.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --error-color: #e74c3c;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoteToPDF — Convert Jupyter Notebooks to PDF, Privately</title>
+<meta name="description" content="Convert .ipynb Jupyter notebooks into clean, formatted PDFs entirely in your browser. No upload, no account, no server. Free and open source.">
+<meta name="keywords" content="jupyter notebook to pdf, ipynb converter, notebook pdf export, offline notebook converter">
+<meta name="author" content="NoteToPDF">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="NoteToPDF — Convert Jupyter Notebooks to PDF, Privately">
+<meta property="og:description" content="Drag in your .ipynb files and get polished PDFs in seconds. 100% client-side — your notebooks never leave your device.">
+<meta property="og:image" content="assets/og-image.png">
+<meta property="og:url" content="https://notetopdf.app">
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            background-color: #f5f6fa;
-            min-height: 100vh;
-            padding: 2rem;
-        }
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NoteToPDF — Convert Jupyter Notebooks to PDF, Privately">
+<meta name="twitter:description" content="No upload. No account. Just drag, convert, download.">
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="manifest" href="assets/manifest.json">
+<meta name="theme-color" content="#0B0F14">
 
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-            text-align: center;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        .upload-section {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-label {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            font-weight: 500;
-        }
-
-        .file-label:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .file-label:active {
-            transform: translateY(0);
-        }
-
-        #status {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            color: var(--primary-color);
-            transition: all 0.3s ease;
-            min-height: 60px;
-        }
-
-        .status-processing {
-            background-color: #e8f4fd;
-            color: var(--secondary-color);
-        }
-
-        .status-success {
-            background-color: #e8f6ef;
-            color: var(--success-color);
-        }
-
-        .status-error {
-            background-color: #fdedec;
-            color: var(--error-color);
-        }
-
-        .file-list {
-            margin-top: 1rem;
-            list-style: none;
-        }
-
-        .file-list li {
-            padding: 0.5rem;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .delete-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 0.35rem;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .delete-btn:hover {
-            background: #c0392b;
-        }
-
-        .delete-icon {
-            width: 14px;
-            height: 14px;
-            stroke: white;
-        }
-
-        .convert-btn {
-            margin-top: 1rem;
-            padding: 1rem 2rem;
-            background-color: var(--success-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .convert-btn:hover {
-            background-color: #219a52;
-        }
-
-        .convert-btn:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-
-        .progress-bar {
-            width: 100px;
-            height: 8px;
-            background-color: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: var(--secondary-color);
-            transition: width 0.3s ease;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            color: #7f8c8d;
-        }
-    </style>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Jupyter Notebook to PDF Converter</h1>
-        
-        <div class="upload-section">
-            <input type="file" id="ipynbFiles" class="file-input" multiple accept=".ipynb">
-            <label for="ipynbFiles" class="file-label">
-                📁 Choose Files
-            </label>
-            <ul class="file-list" id="fileList"></ul>
-            <button class="convert-btn" id="convertBtn" disabled>Convert All to PDF</button>
-            <div id="status">No files selected</div>
+
+<a class="skip-link" href="#converter">Skip to converter</a>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="NoteToPDF home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2.2" stroke="currentColor" stroke-width="1.6"/><path d="M7 7h6M7 11h10M7 15h10M7 19h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-name">Note<b>To</b>PDF</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#compare">Compare</a>
+      <a href="#converter" class="nav-cta">Open converter</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme" aria-pressed="false">
+      <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">Free &amp; client-side</p>
+        <h1>Your notebooks,<br>turned into <span class="accent">clean PDFs</span>.<br>Nothing leaves your machine.</h1>
+        <p class="hero-sub">Drop in one or a hundred <code>.ipynb</code> files. Get back paginated, readable PDFs with syntax-highlighted code and rendered markdown — no upload, no account, no server round-trip.</p>
+        <div class="hero-actions">
+          <a href="#converter" class="btn btn-primary">Convert a notebook <span aria-hidden="true">→</span></a>
+          <a href="#features" class="btn btn-ghost">See what's inside</a>
+        </div>
+        <ul class="hero-trust">
+          <li>No sign-up</li>
+          <li>No install</li>
+          <li>Works offline</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="morph-card">
+          <div class="cell-face">
+            <div class="cell-row">
+              <span class="cell-prompt">In&nbsp;[1]:</span>
+              <div class="cell-code">
+                <span class="tok-kw">def</span> <span class="tok-fn">train</span>(model, data):<br>
+                &nbsp;&nbsp;<span class="tok-kw">for</span> epoch <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">10</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;loss = model.<span class="tok-fn">step</span>(data)<br>
+                &nbsp;&nbsp;<span class="tok-kw">return</span> loss
+              </div>
+            </div>
+            <div class="cell-row cell-md">
+              <span class="cell-prompt">&nbsp;</span>
+              <div class="cell-code"># Results<br>Model converged in **10** epochs.</div>
+            </div>
+          </div>
+          <div class="page-face">
+            <div class="page-sheet">
+              <div class="page-head">
+                <div class="page-title-bar"></div>
+                <div class="page-date-bar"></div>
+              </div>
+              <div class="page-line w80"></div>
+              <div class="page-line w95"></div>
+              <div class="page-line w60"></div>
+              <div class="page-code-block"></div>
+              <div class="page-line w90"></div>
+              <div class="page-line w70"></div>
+              <div class="page-num">1</div>
+            </div>
+          </div>
+          <span class="morph-arrow">⇄</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="features">
+    <div class="wrap">
+      <p class="eyebrow center">What you get</p>
+      <h2 class="section-title center">Built for people who actually read notebooks</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">◧</div>
+          <h3>Drag, drop, batch</h3>
+          <p>Drop a folder's worth of notebooks at once. Reorder, remove, or clear the queue before you convert anything.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">◨</div>
+          <h3>Syntax-highlighted code</h3>
+          <p>Code cells keep keyword, string, and comment colouring so output stays legible, not a wall of grey text.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">▤</div>
+          <h3>Real markdown rendering</h3>
+          <p>Headings, bold, italics, lists, and inline code render properly instead of showing raw <code>**asterisks**</code>.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">◫</div>
+          <h3>Document-grade layout</h3>
+          <p>Every PDF gets a title page, generation date, consistent margins, and numbered pages — ready to send or archive.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">⟳</div>
+          <h3>Live progress, per file</h3>
+          <p>Each file shows its own progress bar and status, so a large batch never feels like a black box.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">◑</div>
+          <h3>Dark &amp; light themes</h3>
+          <p>Pick the theme that matches your editor. Your choice is remembered next time you open the tool.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRIVACY ============ -->
+  <section class="privacy" id="privacy">
+    <div class="wrap privacy-inner">
+      <div class="privacy-badge" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2.5l7.5 3.2v5.4c0 4.9-3.2 8.9-7.5 10.4-4.3-1.5-7.5-5.5-7.5-10.4V5.7L12 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Your notebooks never leave your device.</h2>
+      <p>Every conversion runs inside your browser tab using local JavaScript. Files are read with the FileReader API, parsed in memory, and rendered straight into a PDF — nothing is uploaded, logged, or transmitted anywhere. Close the tab and it's as if it never happened.</p>
+      <ul class="privacy-points">
+        <li><strong>No server.</strong> There is nothing to upload to in the first place.</li>
+        <li><strong>No accounts.</strong> Nothing to sign up for, nothing tied to your identity.</li>
+        <li><strong>No tracking.</strong> No analytics pixels reading your file names or contents.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ CONVERTER ============ -->
+  <section class="converter" id="converter">
+    <div class="wrap">
+      <p class="eyebrow center">The converter</p>
+      <h2 class="section-title center">Convert your notebooks</h2>
+
+      <div class="converter-panel">
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload notebooks: click or drag and drop .ipynb files here">
+          <input type="file" id="ipynbFiles" class="file-input" multiple accept=".ipynb,application/json">
+          <div class="dropzone-content">
+            <div class="dropzone-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </div>
+            <p class="dropzone-title">Drag &amp; drop .ipynb files here</p>
+            <p class="dropzone-sub">or <label for="ipynbFiles" class="dropzone-link">browse your computer</label></p>
+          </div>
         </div>
 
-        <footer>
-            <p>Supports .ipynb files</p>
-        </footer>
+        <div class="queue" id="queueSection" hidden>
+          <div class="queue-header">
+            <h3>Queue <span id="queueCount" class="queue-count">0</span></h3>
+            <button type="button" class="btn btn-text" id="clearAllBtn">Clear all</button>
+          </div>
+          <ul class="file-list" id="fileList"></ul>
+          <div class="queue-actions">
+            <button type="button" class="btn btn-primary btn-block" id="convertBtn" disabled>Convert all to PDF</button>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <p>No files yet. Notebooks you add will show up here before conversion.</p>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </div>
     </div>
+  </section>
 
-    <script>
-        const { jsPDF } = window.jspdf;
-        let selectedFiles = [];
+  <!-- ============ COMPARE ============ -->
+  <section class="compare" id="compare">
+    <div class="wrap">
+      <p class="eyebrow center">Roadmap</p>
+      <h2 class="section-title center">Free today, room to grow</h2>
+      <p class="compare-sub center">Everything below the line is free, forever, with no limits. These are ideas for an optional paid tier down the line — not built yet.</p>
 
-        document.getElementById('ipynbFiles').addEventListener('change', function(e) {
-            const newFiles = Array.from(e.target.files);
-            selectedFiles = [...selectedFiles, ...newFiles];
-            updateFileList();
-            updateConvertButton();
-        });
+      <div class="compare-table" role="table">
+        <div class="compare-row compare-head" role="row">
+          <div role="columnheader">Capability</div>
+          <div role="columnheader">Free</div>
+          <div role="columnheader">Possible Pro tier</div>
+        </div>
+        <div class="compare-row" role="row"><div>Batch .ipynb → PDF conversion</div><div class="yes">✓</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>Syntax highlighting &amp; markdown</div><div class="yes">✓</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>Custom branded PDF templates</div><div class="no">—</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>Embedded plot &amp; image output</div><div class="no">—</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>Merge multiple notebooks into one PDF</div><div class="no">—</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>Cloud sync &amp; team sharing</div><div class="no">—</div><div class="yes">✓</div></div>
+        <div class="compare-row" role="row"><div>CLI / CI pipeline integration</div><div class="no">—</div><div class="yes">✓</div></div>
+      </div>
+    </div>
+  </section>
 
-        document.getElementById('convertBtn').addEventListener('click', async function() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.className = '';
-            statusDiv.textContent = `Processing ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}...`;
-            statusDiv.classList.add('status-processing');
+</main>
 
-            for (const file of selectedFiles) {
-                const listItem = document.getElementById(`file-${file.name}`);
-                const progressFill = listItem.querySelector('.progress-fill');
-                
-                try {
-                    const content = await readFile(file);
-                    const notebook = JSON.parse(content);
-                    const pdf = new jsPDF();
-                    
-                    const lineHeight = 7;
-                    const margin = 10;
-                    let yPos = margin;
-                    let page = 1;
-                    
-                    pdf.setFont('helvetica');
-                    pdf.setFontSize(12);
-                    
-                    notebook.cells.forEach((cell, index) => {
-                        const cellContent = cell.source.join('\n').replace(/\\n/g, '\n');
-                        const isCode = cell.cell_type === 'code';
-                        
-                        pdf.setFont(isCode ? 'courier' : 'helvetica', 'bold');
-                        pdf.text(`${isCode ? 'CODE CELL' : 'MARKDOWN CELL'} (${index + 1})`, margin, yPos);
-                        yPos += lineHeight;
-                        
-                        pdf.setFont(isCode ? 'courier' : 'helvetica', 'normal');
-                        const lines = pdf.splitTextToSize(cellContent, 180);
-                        
-                        lines.forEach(line => {
-                            if (yPos > 280) {
-                                pdf.addPage();
-                                page++;
-                                yPos = margin;
-                            }
-                            pdf.text(line, margin, yPos);
-                            yPos += lineHeight;
-                        });
-                        
-                        yPos += lineHeight;
-                        
-                        const progress = ((index + 1) / notebook.cells.length) * 100;
-                        progressFill.style.width = `${progress}%`;
-                    });
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="brand-name">Note<b>To</b>PDF</span>
+      <p>A free, privacy-first notebook converter. Built to run entirely in your browser.</p>
+    </div>
+    <div class="footer-links">
+      <div>
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#converter">Converter</a>
+        <a href="#compare">Roadmap</a>
+      </div>
+      <div>
+        <h4>Trust</h4>
+        <a href="#privacy">Privacy</a>
+        <a href="https://github.com" target="_blank" rel="noopener">Source code</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <p>© <span id="year"></span> NoteToPDF. MIT licensed. No cookies, no tracking.</p>
+  </div>
+</footer>
 
-                    pdf.save(`${file.name.replace('.ipynb', '')}.pdf`);
-                    progressFill.style.backgroundColor = '#27ae60';
-                    
-                } catch (error) {
-                    statusDiv.classList.remove('status-processing');
-                    statusDiv.classList.add('status-error');
-                    statusDiv.textContent = `Error processing ${file.name}: ${error.message}`;
-                    progressFill.style.backgroundColor = '#e74c3c';
-                    console.error(error);
-                }
-            }
-
-            statusDiv.classList.remove('status-processing');
-            statusDiv.classList.add('status-success');
-            statusDiv.textContent = `Successfully converted ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}!`;
-            selectedFiles = [];
-            updateFileList();
-            updateConvertButton();
-        });
-
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-            
-            selectedFiles.forEach(file => {
-                const listItem = document.createElement('li');
-                listItem.id = `file-${file.name}`;
-                listItem.innerHTML = `
-                    <div class="file-item">
-                        <span>${file.name}</span>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 0%"></div>
-                            </div>
-                            <button class="delete-btn" data-name="${file.name}" title="Delete file">
-                                <svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                fileList.appendChild(listItem);
-            });
-
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const fileName = this.dataset.name;
-                    selectedFiles = selectedFiles.filter(file => file.name !== fileName);
-                    updateFileList();
-                    updateConvertButton();
-                });
-            });
-        }
-
-        function updateConvertButton() {
-            const convertBtn = document.getElementById('convertBtn');
-            convertBtn.disabled = selectedFiles.length === 0;
-        }
-
-        function readFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = (e) => reject(new Error('Failed to read file'));
-                reader.readAsText(file);
-            });
-        }
-    </script>
+<script src="js/storage.js"></script>
+<script src="js/pdf-generator.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
